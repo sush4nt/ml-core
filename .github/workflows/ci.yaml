@@ -19,22 +19,22 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.12.7'
 
     - name: Install dependencies
       run: |
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        pip install -r ml-core/requirements.txt
+        pip install -r requirements.txt
 
     - name: Run Python scripts
       run: |
         source .venv/bin/activate
-        python -m unittest discover -s ml-core/mlcore -p "*.py"
+        python -m unittest discover -s mlcore -p "*.py"
 
     - name: Lint Python code
       run: |
         source .venv/bin/activate
         pip install flake8
-        flake8 ml-core/mlcore
+        flake8 mlcore
