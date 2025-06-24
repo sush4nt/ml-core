@@ -27,11 +27,13 @@ jobs:
         source .venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements.txt
+        pip install .
+        pip install pytest
 
-    - name: Run Python scripts
+    - name: Run tests
       run: |
         source .venv/bin/activate
-        python -m unittest discover -s mlcore -p "*.py"
+        pytest --maxfail=1 --disable-warnings -q
 
     - name: Lint Python code
       run: |

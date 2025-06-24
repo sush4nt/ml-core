@@ -1,7 +1,7 @@
 import numpy as np
 
 class CustomLogisticRegression:
-    def __init__(self, learning_rate=0.01, n_iters=100, l1=False, l2=False, alpha=1):
+    def __init__(self, learning_rate=0.01, n_iters=1000, l1=False, l2=False, alpha=1):
         self.learning_rate = learning_rate
         self.n_iters = n_iters
         self.l1 = l1
@@ -47,10 +47,14 @@ class CustomLogisticRegression:
             self.bias -= self.learning_rate * dB
     
     def predict_proba(self, X):
+        if self.weights is None or self.bias is None:
+            _, n_cols = X.shape
+            self.weights = np.zeros(n_cols)
+            self.bias = 0
         # (m,n) x (n,1) = (m,1)
         return self.sigmoid(np.dot(X, self.weights) + self.bias)
     
-    def predict(self, X, threshold=0.5):
+    def predict(self, X, threshold=0.5):    
         probabilities = self.predict_proba(X)
         return (probabilities >= threshold).astype(int)
     
