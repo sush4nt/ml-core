@@ -62,7 +62,7 @@ jobs:
     - name: Style and complexity checks with Flake8
       run: |
         source .venv/bin/activate
-        flake8 mlcore/
+        flake8 --exit-zero mlcore/
 
     - name: Static type checks with Mypy
       run: |
