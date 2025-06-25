@@ -1,2 +1,4 @@
 .venv-mlcore
 .pytest_cache
+build/
+mlcore.egg-info/
