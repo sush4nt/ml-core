@@ -35,6 +35,11 @@ jobs:
         source .venv/bin/activate
         pytest --maxfail=1 --disable-warnings -q
 
+    - name: Install linting libraries
+      run: |
+        source .venv/bin/activate
+        pip install autoflake isort black flake8 mypy 
+
     - name: Remove unused code with Autoflake
       run: |
         source .venv/bin/activate
