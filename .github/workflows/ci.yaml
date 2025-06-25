@@ -35,15 +35,31 @@ jobs:
         source .venv/bin/activate
         pytest --maxfail=1 --disable-warnings -q
 
-    - name: Lint Python code
+    - name: Remove unused code with Autoflake
       run: |
         source .venv/bin/activate
-        pip install autoflake isort black
         autoflake \
-            --recursive \
-            --in-place \
-            --remove-unused-variables \
-            --remove-all-unused-imports \
-            mlcore/
+          --recursive \
+          --in-place \
+          --remove-unused-variables \
+          --remove-all-unused-imports \
+          mlcore/
+    - name: Check import order with Isort
+      run: |
+        source .venv/bin/activate
         isort --check-only mlcore/
+
+    - name: Check formatting with Black
+      run: |
+        source .venv/bin/activate
         black --check mlcore/
+
+    - name: Style and complexity checks with Flake8
+      run: |
+        source .venv/bin/activate
+        flake8 mlcore/
+
+    - name: Static type checks with Mypy
+      run: |
+        source .venv/bin/activate
+        mypy mlcore/
