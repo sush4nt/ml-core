@@ -67,4 +67,5 @@ jobs:
     - name: Static type checks with Mypy
       run: |
         source .venv/bin/activate
+        pip install joblib-stubs
         mypy mlcore/
