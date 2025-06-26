@@ -35,7 +35,7 @@ class CustomLogisticRegression:
             else:
                 regularization_term = 0
             # calculate total cost
-            cost = cost_logloss + regularization_term
+            cost_logloss + regularization_term
             # calculate gradients
             # (m, 1)
             dZ = hypothesis - y

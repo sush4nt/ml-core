@@ -28,7 +28,7 @@ class CustomLinearRegression:
             else:
                 regularization_term = 0
             # cost
-            cost = cost_mse + regularization_term
+            cost_mse + regularization_term
             common_dw = (1 / n_rows) * np.dot(X.T, (hypothesis - y))
             dW = (
                 (common_dw + self.alpha / n_rows * self.alpha * np.sign(self.weights))
