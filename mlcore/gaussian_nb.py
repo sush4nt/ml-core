@@ -2,7 +2,7 @@ import numpy as np
 
 
 class CustomGaussianNB:
-    def __init(self):
+    def __init__(self):
         pass
 
     def fit(self, X, y):
