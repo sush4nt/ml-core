@@ -1,7 +1,6 @@
-from collections import Counter
-
 import numpy as np
 from joblib import Parallel, delayed
+from scipy import stats
 
 from mlcore.decision_tree import CustomDecisionTreeClassifier
 
@@ -63,9 +62,13 @@ class CustomRandomForestClassifier:
         X = np.array(X)
         # X: (m,n) -> Predictions: (m,)
         # (n_estimators, m) -> Transpose -> (m, n_estimators)
-        tree_predictions = np.array([tree.predict(X) for tree in self.trees]).T
+        # parallelize prediction across trees
+        tree_predictions = Parallel(n_jobs=self.n_jobs)(
+            delayed(tree.predict)(X) for tree in self.trees
+        )
+        tree_predictions = np.array(tree_predictions).T
         # perform majority voting
-        predictions = [Counter(p).most_common(1)[0][0] for p in tree_predictions]
+        predictions, _ = stats.mode(tree_predictions, axis=1, keepdims=False)
         return np.array(predictions)
 
     def _bootstrap_dataset(self, X, y, seed):
