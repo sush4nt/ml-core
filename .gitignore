@@ -2,3 +2,4 @@
 .pytest_cache
 build/
 mlcore.egg-info/
+mlcore/__pycache__/

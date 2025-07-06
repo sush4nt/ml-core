@@ -22,19 +22,23 @@ class CustomDecisionTreeClassifier:
     def __init__(
         self,
         max_depth=None,
+        max_features="sqrt",
         min_samples_split=2,
         min_samples_leaf=1,
         min_impurity_decrease=1e-7,
         criterion="gini",
         n_classes=None,
+        random_state=42,
     ):
         self.max_depth = max_depth
+        self.max_features = max_features
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.min_impurity_decrease = min_impurity_decrease
         self.criterion = criterion
         self.n_classes = n_classes
         self.root = None
+        self.rnd = np.random.RandomState(random_state)
 
     def fit(self, X, y):
         X = np.array(X)
@@ -70,9 +74,11 @@ class CustomDecisionTreeClassifier:
         best_gain = 0.0
         best_feat = None
         best_thresh = None
-
+        # random sampling of feature set
+        feature_sample_size = self._max_features_sample(num_features)
+        selected_features = self._bootstrap_featureset(num_features, feature_sample_size)
         # find best split
-        for feat in range(num_features):
+        for feat in selected_features:
             unique_vals = np.unique(X[:, feat])
             if unique_vals.shape[0] < 2:
                 continue
