@@ -57,8 +57,10 @@ class CustomRandomForestClassifier:
         self.trees = Parallel(n_jobs=self.n_jobs)(
             delayed(build_and_fit_tree)(seed) for seed in seeds
         )
+        return self
 
     def predict(self, X):
+        X = np.array(X)
         # X: (m,n) -> Predictions: (m,)
         # (n_estimators, m) -> Transpose -> (m, n_estimators)
         tree_predictions = np.array([tree.predict(X) for tree in self.trees]).T

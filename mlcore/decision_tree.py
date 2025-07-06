@@ -148,12 +148,6 @@ class CustomDecisionTreeClassifier:
         else:
             return self._predict_one(x, node.right)
 
-    def _bootstrap_dataset(self, X, y):
-        """Create bootstrapped sampled dataset with replacement"""
-        n_samples = X.shape[0]
-        indices = self.rnd.choice(n_samples, n_samples, replace=True).T
-        return X[indices], y[indices]
-
     def _bootstrap_featureset(self, n_features, feature_sample_size):
         """Create bootstrapped sampled featureset without replacement"""
         return self.rnd.choice(n_features, size=feature_sample_size, replace=False)
