@@ -1,9 +1,12 @@
-import numpy as np
 from collections import Counter
+
+import numpy as np
 from joblib import Parallel, delayed
+
 from mlcore.decision_tree import CustomDecisionTreeClassifier
 
-class CustomRandomForestClassifier():
+
+class CustomRandomForestClassifier:
     def __init__(
         self,
         n_estimators=100,
@@ -45,11 +48,11 @@ class CustomRandomForestClassifier():
                 min_impurity_decrease=self.min_impurity_decrease,
                 criterion=self.criterion,
                 n_classes=self.n_classes,
-                random_state=seed
+                random_state=seed,
             )
             tree.fit(X_sample, y_sample)
             return tree
-        
+
         seeds = [self.rnd.randint(0, int(1e6)) for _ in range(self.n_estimators)]
         self.trees = Parallel(n_jobs=self.n_jobs)(
             delayed(build_and_fit_tree)(seed) for seed in seeds
@@ -68,13 +71,15 @@ class CustomRandomForestClassifier():
         n_samples = X.shape[0]
         indices = rnd.choice(n_samples, n_samples, replace=True)
         return X[indices], y[indices]
-    
+
     def _max_features_sample(self, n_features):
-        assert self.max_features in ("sqrt", "log2") or isinstance(self.max_features, int), \
-            "max_features must be 'sqrt', 'log2', or an integer"
+        assert self.max_features in ("sqrt", "log2") or isinstance(
+            self.max_features, int
+        ), "max_features must be 'sqrt', 'log2', or an integer"
         if isinstance(self.max_features, int):
-            assert self.max_features <= n_features, \
-            "max_features must be less than or equal to the number of features in the dataset"
+            assert (
+                self.max_features <= n_features
+            ), "max_features must be less than or equal to the number of features in the dataset"
             return self.max_features
         elif self.max_features == "sqrt":
             return int(np.sqrt(n_features))

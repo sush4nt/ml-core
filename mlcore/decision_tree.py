@@ -76,7 +76,9 @@ class CustomDecisionTreeClassifier:
         best_thresh = None
         # random sampling of feature set
         feature_sample_size = self._max_features_sample(num_features)
-        selected_features = self._bootstrap_featureset(num_features, feature_sample_size)
+        selected_features = self._bootstrap_featureset(
+            num_features, feature_sample_size
+        )
         # find best split
         for feat in selected_features:
             unique_vals = np.unique(X[:, feat])
@@ -89,7 +91,10 @@ class CustomDecisionTreeClassifier:
                 right_mask = ~left_mask
                 if left_mask.sum() == 0 or right_mask.sum() == 0:
                     continue
-                if left_mask.sum() < self.min_samples_leaf or right_mask.sum() < self.min_samples_leaf:
+                if (
+                    left_mask.sum() < self.min_samples_leaf
+                    or right_mask.sum() < self.min_samples_leaf
+                ):
                     continue
                 gain = self._calc_information_gain(
                     y, left_mask, right_mask, parent_impurity
@@ -142,23 +147,25 @@ class CustomDecisionTreeClassifier:
             return self._predict_one(x, node.left)
         else:
             return self._predict_one(x, node.right)
-        
+
     def _bootstrap_dataset(self, X, y):
-        """ Create bootstrapped sampled dataset with replacement """
+        """Create bootstrapped sampled dataset with replacement"""
         n_samples = X.shape[0]
         indices = self.rnd.choice(n_samples, n_samples, replace=True).T
         return X[indices], y[indices]
-    
+
     def _bootstrap_featureset(self, n_features, feature_sample_size):
-        """ Create bootstrapped sampled featureset without replacement """
+        """Create bootstrapped sampled featureset without replacement"""
         return self.rnd.choice(n_features, size=feature_sample_size, replace=False)
-    
+
     def _max_features_sample(self, n_features):
-        assert self.max_features in ("sqrt", "log2") or isinstance(self.max_features, int), \
-            "max_features must be 'sqrt', 'log2', or an integer"
+        assert self.max_features in ("sqrt", "log2") or isinstance(
+            self.max_features, int
+        ), "max_features must be 'sqrt', 'log2', or an integer"
         if isinstance(self.max_features, int):
-            assert self.max_features <= n_features, \
-            "max_features must be less than or equal to the number of features in the dataset"
+            assert (
+                self.max_features <= n_features
+            ), "max_features must be less than or equal to the number of features in the dataset"
             return self.max_features
         elif self.max_features == "sqrt":
             return int(np.sqrt(n_features))
