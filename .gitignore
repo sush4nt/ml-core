@@ -2,4 +2,7 @@
 .pytest_cache
 build/
 mlcore.egg-info/
-mlcore/__pycache__/
+mlcore/__pycache__/*
+__pycache__/*
+.ipynb_checkpoints/
+.mlcore/
