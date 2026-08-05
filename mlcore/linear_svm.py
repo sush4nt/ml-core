@@ -2,7 +2,17 @@ import numpy as np
 
 
 class CustomLinearSVM:
-    def __init__(self, learning_rate=0.01, C=0.1, n_iters=1000,  l1=False, l2=False, alpha=1, tol=1e-4, patience=50):
+    def __init__(
+        self,
+        learning_rate=0.01,
+        C=0.1,
+        n_iters=1000,
+        l1=False,
+        l2=False,
+        alpha=1,
+        tol=1e-4,
+        patience=50,
+    ):
         self.learning_rate = learning_rate
         self.C = C
         self.n_iters = n_iters
@@ -14,7 +24,7 @@ class CustomLinearSVM:
         self.tol = tol
         self.patience = patience
 
-        #tracking history
+        # tracking history
         self.cost_history = []
         self.margin_cost_history = []
         self.misclassification_cost_history = []
