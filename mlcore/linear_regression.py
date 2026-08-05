@@ -61,7 +61,7 @@ class CustomLinearRegression:
             if self.l1:
                 dW = common_dw + self.alpha / n_rows * np.sign(self.weights)
             elif self.l2:
-                dW = common_dw + 2 * self.alpha / n_rows * self.weights
+                dW = common_dw + self.alpha / n_rows * self.weights
             else:
                 dW = common_dw
             dB = (1 / n_rows) * np.sum(hypothesis - y)
