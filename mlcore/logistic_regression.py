@@ -2,7 +2,16 @@ import numpy as np
 
 
 class CustomLogisticRegression:
-    def __init__(self, learning_rate=0.01, n_iters=1000, l1=False, l2=False, alpha=1, tol=1e-4, patience=50):
+    def __init__(
+        self,
+        learning_rate=0.01,
+        n_iters=1000,
+        l1=False,
+        l2=False,
+        alpha=1,
+        tol=1e-4,
+        patience=50,
+    ):
         self.learning_rate = learning_rate
         self.n_iters = n_iters
         self.l1 = l1
@@ -14,7 +23,7 @@ class CustomLogisticRegression:
         self.cost_history = []
         self.logloss_history = []
         self.regularization_history = []
-        self.tol = tol 
+        self.tol = tol
         self.patience = patience
 
     def fit(self, X, y):
@@ -56,9 +65,9 @@ class CustomLogisticRegression:
             # (m,n) x (m,1) = (m,1)
             common_dw = (1 / n_rows) * np.dot(X.T, dZ)
             if self.l1:
-                dW = (common_dw + self.alpha / n_rows * np.sign(self.weights))
+                dW = common_dw + self.alpha / n_rows * np.sign(self.weights)
             elif self.l2:
-                dW = (common_dw + self.alpha / n_rows * self.weights)
+                dW = common_dw + self.alpha / n_rows * self.weights
             else:
                 dW = common_dw
             # scalar
@@ -71,7 +80,9 @@ class CustomLogisticRegression:
             if best_cost - cost < self.tol:
                 no_improve_count += 1
                 if no_improve_count >= self.patience:
-                    print(f"Early stopping at iteration {iteration} (no improvement for {self.patience} rounds)")
+                    print(
+                        f"Early stopping at iteration {iteration} (no improvement for {self.patience} rounds)"
+                    )
                     break
             else:
                 best_cost = cost
@@ -81,7 +92,6 @@ class CustomLogisticRegression:
             "logloss_history": self.logloss_history,
             "regularization_history": self.regularization_history,
         }
-
 
     def predict_proba(self, X):
         if self.weights is None or self.bias is None:
