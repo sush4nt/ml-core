@@ -2,7 +2,16 @@ import numpy as np
 
 
 class CustomLinearRegression:
-    def __init__(self, learning_rate=0.01, n_iters=100, l1=False, l2=False, alpha=1, tol=1e-4, patience=10):
+    def __init__(
+        self,
+        learning_rate=0.01,
+        n_iters=100,
+        l1=False,
+        l2=False,
+        alpha=1,
+        tol=1e-4,
+        patience=50,
+    ):
         self.learning_rate = learning_rate
         self.n_iters = n_iters
         self.l1 = l1
@@ -14,7 +23,7 @@ class CustomLinearRegression:
         self.cost_history = []
         self.mse_history = []
         self.regularization_history = []
-        self.tol = tol 
+        self.tol = tol
         self.patience = patience
 
     def fit(self, X, y):
@@ -22,7 +31,7 @@ class CustomLinearRegression:
         self.weights = np.zeros(n_cols)
         self.bias = 0
 
-        # reset 
+        # reset
         self.cost_history = []
         self.mse_history = []
         self.regularization_history = []
@@ -50,9 +59,9 @@ class CustomLinearRegression:
 
             common_dw = (1 / n_rows) * np.dot(X.T, (hypothesis - y))
             if self.l1:
-                dW = (common_dw + self.alpha / n_rows * np.sign(self.weights))
+                dW = common_dw + self.alpha / n_rows * np.sign(self.weights)
             elif self.l2:
-                dW = (common_dw + 2* self.alpha / n_rows * self.weights)
+                dW = common_dw + 2 * self.alpha / n_rows * self.weights
             else:
                 dW = common_dw
             dB = (1 / n_rows) * np.sum(hypothesis - y)
@@ -64,7 +73,9 @@ class CustomLinearRegression:
             if best_cost - cost < self.tol:
                 no_improve_count += 1
                 if no_improve_count >= self.patience:
-                    print(f"Early stopping at iteration {iteration} (no improvement for {self.patience} rounds)")
+                    print(
+                        f"Early stopping at iteration {iteration} (no improvement for {self.patience} rounds)"
+                    )
                     break
             else:
                 best_cost = cost
@@ -72,7 +83,7 @@ class CustomLinearRegression:
         return {
             "cost_history": self.cost_history,
             "mse_history": self.mse_history,
-            "regularization_history": self.regularization_history
+            "regularization_history": self.regularization_history,
         }
 
     def predict(self, X):
