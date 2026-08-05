@@ -2,7 +2,7 @@ import numpy as np
 
 
 class CustomLinearRegression:
-    def __init__(self, learning_rate=0.01, n_iters=100, l1=False, l2=False, alpha=1, tol=1e-4, patience=10):
+    def __init__(self, learning_rate=0.01, n_iters=100, l1=False, l2=False, alpha=1, tol=1e-4, patience=50):
         self.learning_rate = learning_rate
         self.n_iters = n_iters
         self.l1 = l1
