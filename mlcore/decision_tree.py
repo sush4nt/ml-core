@@ -39,19 +39,33 @@ class CustomDecisionTreeClassifier:
         self.n_classes = n_classes
         self.root = None
         self.rnd = np.random.RandomState(random_state)
+        # history
+        self.cost_history = []
+        self.feature_importances_ = None
 
     def fit(self, X, y):
         X = np.array(X)
-        y = np.array(y)
+        y = np.array(y, dtype=int)
         if self.n_classes is None:
             self.n_classes = len(np.unique(y))
-        self.root = self._build_tree(X, y, depth=0)
+
+        num_samples, num_features = X.shape
+        self.cost_history = []
+        self.feature_importances_ = np.zeros(num_features)       
+        
+        self.root = self._build_tree(X, y, depth=0, n_total=num_samples)
+
+        # normalize feature importances
+        total = self.feature_importances_.sum()
+        if total > 0:
+            self.feature_importances_ /= total
+ 
 
     def predict(self, X):
         """Traverses through the trained tree to make predictions."""
         return np.array([self._predict_one(x, self.root) for x in X])
 
-    def _build_tree(self, X, y, depth):
+    def _build_tree(self, X, y, depth, n_total):
         """
         1. Define criterions
         2. Calculates initial impurity
@@ -74,9 +88,10 @@ class CustomDecisionTreeClassifier:
         best_gain = 0.0
         best_feat = None
         best_thresh = None
-        # random sampling of feature set
+        # no of features to consider when looking for best split.
         feature_sample_size = self._max_features_sample(num_features)
-        selected_features = self._bootstrap_featureset(
+        # randomly chooses `feature_sample_size` features from the total features without replacement
+        selected_features = self._random_feature_subsample(
             num_features, feature_sample_size
         )
         # find best split
@@ -103,15 +118,19 @@ class CustomDecisionTreeClassifier:
                     best_gain, best_feat, best_thresh = gain, feat, thresh
 
         # if no valid split or insufficient gain
-        if best_feat is None or (best_gain * num_samples) < self.min_impurity_decrease:
+        if best_feat is None or best_gain < self.min_impurity_decrease:
             leaf_label = Counter(y).most_common(1)[0][0]
             return LeafNode(leaf_label, samples_count=num_samples)
+
+        weighted_gain = (num_samples / n_total) * best_gain
+        self.cost_history.append(weighted_gain)
+        self.feature_importances_[best_feat] += weighted_gain
 
         # split on best, and recursively build left and right subtrees
         mask_left = X[:, best_feat] <= best_thresh
         mask_right = ~mask_left
-        left_subtree = self._build_tree(X[mask_left], y[mask_left], depth + 1)
-        right_subtree = self._build_tree(X[mask_right], y[mask_right], depth + 1)
+        left_subtree = self._build_tree(X[mask_left], y[mask_left], depth + 1, n_total)
+        right_subtree = self._build_tree(X[mask_right], y[mask_right], depth + 1, n_total)
         return DecisionNode(
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
@@ -148,8 +167,8 @@ class CustomDecisionTreeClassifier:
         else:
             return self._predict_one(x, node.right)
 
-    def _bootstrap_featureset(self, n_features, feature_sample_size):
-        """Create bootstrapped sampled featureset without replacement"""
+    def _random_feature_subsample(self, n_features, feature_sample_size):
+        """Create random feature subsample without replacement"""
         return self.rnd.choice(n_features, size=feature_sample_size, replace=False)
 
     def _max_features_sample(self, n_features):
@@ -160,12 +179,14 @@ class CustomDecisionTreeClassifier:
             assert (
                 self.max_features <= n_features
             ), "max_features must be less than or equal to the number of features in the dataset"
+            assert (
+                self.max_features > 1
+            ), "max_features must be more than 1 to allow for splitting"
             return self.max_features
         elif self.max_features == "sqrt":
-            return int(np.sqrt(n_features))
+            return max(1, int(np.sqrt(n_features)))
         elif self.max_features == "log2":
-            return int(np.log2(n_features))
-        return n_features
+            return max(1, int(np.log2(n_features)))
 
     def print_tree(self):
         """Print tree with feature, threshold, gain, and sample counts."""
