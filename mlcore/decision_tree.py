@@ -51,15 +51,14 @@ class CustomDecisionTreeClassifier:
 
         num_samples, num_features = X.shape
         self.cost_history = []
-        self.feature_importances_ = np.zeros(num_features)       
-        
+        self.feature_importances_ = np.zeros(num_features)
+
         self.root = self._build_tree(X, y, depth=0, n_total=num_samples)
 
         # normalize feature importances
         total = self.feature_importances_.sum()
         if total > 0:
             self.feature_importances_ /= total
- 
 
     def predict(self, X):
         """Traverses through the trained tree to make predictions."""
@@ -130,7 +129,9 @@ class CustomDecisionTreeClassifier:
         mask_left = X[:, best_feat] <= best_thresh
         mask_right = ~mask_left
         left_subtree = self._build_tree(X[mask_left], y[mask_left], depth + 1, n_total)
-        right_subtree = self._build_tree(X[mask_right], y[mask_right], depth + 1, n_total)
+        right_subtree = self._build_tree(
+            X[mask_right], y[mask_right], depth + 1, n_total
+        )
         return DecisionNode(
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
