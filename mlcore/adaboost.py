@@ -1,17 +1,15 @@
 import numpy as np
 from mlcore.decision_tree import CustomDecisionTreeClassifier
 
-class CustomAdaBoostClassifier():
-    def __init__(self,
-        n_estimators=50,
-        learning_rate=1.0,
-        random_state=None,
-        **stump_kwargs
-        ):
+
+class CustomAdaBoostClassifier:
+    def __init__(
+        self, n_estimators=50, learning_rate=1.0, random_state=None, **stump_kwargs
+    ):
         self.n_estimators = n_estimators
         self.learning_rate = learning_rate
         self.random_state = random_state
-        self.stump_kwargs = {**stump_kwargs, 'max_depth': 1}
+        self.stump_kwargs = {**stump_kwargs, "max_depth": 1}
         self.stump_learners = []
         self.rnd = np.random.RandomState(self.random_state)
         # self.seeds = [self.rnd.randint(0, int(1e6)) for _ in range(self.n_estimators)]
@@ -46,26 +44,27 @@ class CustomAdaBoostClassifier():
             # y_sample_mapped = y_mapped[indices] # values in {-1,+1}
 
             stump = CustomDecisionTreeClassifier(
-                **self.stump_kwargs,
-                random_state=self.rnd.randint(0, int(1e6))
+                **self.stump_kwargs, random_state=self.rnd.randint(0, int(1e6))
             )
             stump.fit(X, y, sample_weights=self.sample_weights)
             stump_preds = stump.predict(X)
             mapped_stump_preds = np.where(stump_preds == self.classes_[0], -1, 1)
 
             # calculate weighted error
-            misclassifications = (mapped_stump_preds != y_mapped)
+            misclassifications = mapped_stump_preds != y_mapped
             eps = np.dot(self.sample_weights, misclassifications)
             if eps >= 0.5 or eps <= 0:
-                # stop boosting since misclf rate is too high 
+                # stop boosting since misclf rate is too high
                 break
             eps = np.clip(eps, 1e-10, 1 - 1e-10)
 
-            # stump importance 
-            alpha = self.learning_rate * 0.5 * np.log( (1-eps)/ eps )
+            # stump importance
+            alpha = self.learning_rate * 0.5 * np.log((1 - eps) / eps)
 
             # reassign weights
-            self.sample_weights = self.sample_weights * np.exp(-alpha * y_mapped * mapped_stump_preds)
+            self.sample_weights = self.sample_weights * np.exp(
+                -alpha * y_mapped * mapped_stump_preds
+            )
             self.sample_weights /= np.sum(self.sample_weights)
 
             # store
@@ -84,19 +83,21 @@ class CustomAdaBoostClassifier():
         # normallize stump importances
         alpha_array = np.array(self.alphas_)
         total_alpha = np.sum(alpha_array)
-        self.stump_importances_ = alpha_array / total_alpha if total_alpha > 0 else alpha_array
+        self.stump_importances_ = (
+            alpha_array / total_alpha if total_alpha > 0 else alpha_array
+        )
 
         return self
-    
+
     def predict(self, X):
         X = np.array(X)
         stump_preds = np.zeros(X.shape[0])
-        
+
         for stump, alpha in self.stump_learners:
             stump_preds += alpha * np.where(stump.predict(X) == self.classes_[0], -1, 1)
 
         return np.where(stump_preds >= 0, self.classes_[1], self.classes_[0])
-    
+
     def predict_proba(self, X):
         X = np.array(X)
         stump_preds = np.zeros(X.shape[0])
@@ -104,7 +105,7 @@ class CustomAdaBoostClassifier():
         for stump, alpha in self.stump_learners:
             stump_preds += alpha * np.where(stump.predict(X) == self.classes_[0], -1, 1)
 
-        expF  = np.exp(stump_preds)
+        expF = np.exp(stump_preds)
         expmF = np.exp(-stump_preds)
         p_pos = expF / (expF + expmF)
         return np.vstack([1 - p_pos, p_pos]).T
