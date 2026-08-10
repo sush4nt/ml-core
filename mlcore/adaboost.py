@@ -1,4 +1,5 @@
 import numpy as np
+
 from mlcore.decision_tree import CustomDecisionTreeClassifier
 
 
@@ -12,7 +13,6 @@ class CustomAdaBoostClassifier:
         self.stump_kwargs = {**stump_kwargs, "max_depth": 1}
         self.stump_learners = []
         self.rnd = np.random.RandomState(self.random_state)
-        # self.seeds = [self.rnd.randint(0, int(1e6)) for _ in range(self.n_estimators)]
 
     def fit(self, X, y):
         # Convert to arrays and map classes
@@ -31,17 +31,6 @@ class CustomAdaBoostClassifier:
         self.feature_importances_ = np.zeros(num_features)
 
         for est in range(self.n_estimators):
-            # X_sample, y_sample = self._bootstrap_dataset(X, y_mapped, seed=self.seeds[est])
-            # indices = self.rnd.choice(
-            #     num_samples,
-            #     size=num_samples,
-            #     replace=True,
-            #     p=self.sample_weights
-            # )
-
-            # X_sample = X[indices]
-            # y_sample_orig = y[indices]        # values in {0,1}
-            # y_sample_mapped = y_mapped[indices] # values in {-1,+1}
 
             stump = CustomDecisionTreeClassifier(
                 **self.stump_kwargs, random_state=self.rnd.randint(0, int(1e6))
