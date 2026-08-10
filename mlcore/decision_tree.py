@@ -43,17 +43,25 @@ class CustomDecisionTreeClassifier:
         self.cost_history = []
         self.feature_importances_ = None
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weights=None):
         X = np.array(X)
         y = np.array(y, dtype=int)
         if self.n_classes is None:
             self.n_classes = len(np.unique(y))
 
         num_samples, num_features = X.shape
+
+        if sample_weights is None:
+            sample_weights = np.ones(num_samples) / num_samples
+        else:
+            # use normalized sample weights
+            sample_weights = np.array(sample_weights)
+            sample_weights /= np.sum(sample_weights)
+
         self.cost_history = []
         self.feature_importances_ = np.zeros(num_features)
 
-        self.root = self._build_tree(X, y, depth=0, n_total=num_samples)
+        self.root = self._build_tree(X, y, sample_weights, depth=0)
 
         # normalize feature importances
         total = self.feature_importances_.sum()
@@ -64,7 +72,7 @@ class CustomDecisionTreeClassifier:
         """Traverses through the trained tree to make predictions."""
         return np.array([self._predict_one(x, self.root) for x in X])
 
-    def _build_tree(self, X, y, depth, n_total):
+    def _build_tree(self, X, y, sample_weights, depth):
         """
         1. Define criterions
         2. Calculates initial impurity
@@ -80,10 +88,11 @@ class CustomDecisionTreeClassifier:
             or num_samples < self.min_samples_split
             or len(set(y)) == 1
         ):
-            leaf_label = Counter(y).most_common(1)[0][0]
+            weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+            leaf_label = int(np.argmax(weighted_counts))
             return LeafNode(leaf_label, samples_count=num_samples)
 
-        parent_impurity = self._calc_impurity(y)
+        parent_impurity = self._calc_impurity(y, sample_weights)
         best_gain = 0.0
         best_feat = None
         best_thresh = None
@@ -111,48 +120,51 @@ class CustomDecisionTreeClassifier:
                 ):
                     continue
                 gain = self._calc_information_gain(
-                    y, left_mask, right_mask, parent_impurity
+                    y, left_mask, right_mask, parent_impurity, sample_weights
                 )
                 if gain > best_gain:
                     best_gain, best_feat, best_thresh = gain, feat, thresh
 
         # if no valid split or insufficient gain
         if best_feat is None or best_gain < self.min_impurity_decrease:
-            leaf_label = Counter(y).most_common(1)[0][0]
+            weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+            leaf_label = int(np.argmax(weighted_counts))
             return LeafNode(leaf_label, samples_count=num_samples)
 
-        weighted_gain = (num_samples / n_total) * best_gain
+        weighted_gain = np.sum(sample_weights) * best_gain
         self.cost_history.append(weighted_gain)
         self.feature_importances_[best_feat] += weighted_gain
 
         # split on best, and recursively build left and right subtrees
         mask_left = X[:, best_feat] <= best_thresh
         mask_right = ~mask_left
-        left_subtree = self._build_tree(X[mask_left], y[mask_left], depth + 1, n_total)
+        left_subtree = self._build_tree(
+            X[mask_left], y[mask_left], sample_weights[mask_left], depth + 1
+        )
         right_subtree = self._build_tree(
-            X[mask_right], y[mask_right], depth + 1, n_total
+            X[mask_right], y[mask_right], sample_weights[mask_right], depth + 1
         )
         return DecisionNode(
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
 
-    def _calc_information_gain(self, y, left_mask, right_mask, parent_impurity):
-        n = len(y)
-        n_left = left_mask.sum()
-        n_right = right_mask.sum()
-        imp_left = self._calc_impurity(y[left_mask])
-        imp_right = self._calc_impurity(y[right_mask])
-        child_impurity = (n_left / n) * imp_left + (n_right / n) * imp_right
+    def _calc_information_gain(self, y, left_mask, right_mask, parent_impurity, sample_weights):
+        w_total = np.sum(sample_weights)
+        w_left = np.sum(sample_weights[left_mask])
+        w_right = np.sum(sample_weights[right_mask])
+        imp_left = self._calc_impurity(y[left_mask], sample_weights[left_mask])
+        imp_right = self._calc_impurity(y[right_mask], sample_weights[right_mask])
+        child_impurity = (w_left / w_total) * imp_left + (w_right / w_total) * imp_right
         return parent_impurity - child_impurity
 
-    def _calc_impurity(self, y):
+    def _calc_impurity(self, y, sample_weights):
         assert self.criterion in (
             "gini",
             "entropy",
             "misclassification",
         ), "criterion must be 'gini', 'entropy', or 'misclassification'"
-        counts = np.bincount(y, minlength=self.n_classes)
-        ps = counts / counts.sum()
+        weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+        ps = weighted_counts / weighted_counts.sum()
         if self.criterion == "gini":
             return 1 - np.sum(ps**2)
         elif self.criterion == "entropy":
