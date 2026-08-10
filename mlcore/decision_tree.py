@@ -88,7 +88,9 @@ class CustomDecisionTreeClassifier:
             or num_samples < self.min_samples_split
             or len(set(y)) == 1
         ):
-            weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+            weighted_counts = np.bincount(
+                y, weights=sample_weights, minlength=self.n_classes
+            )
             leaf_label = int(np.argmax(weighted_counts))
             return LeafNode(leaf_label, samples_count=num_samples)
 
@@ -127,7 +129,9 @@ class CustomDecisionTreeClassifier:
 
         # if no valid split or insufficient gain
         if best_feat is None or best_gain < self.min_impurity_decrease:
-            weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+            weighted_counts = np.bincount(
+                y, weights=sample_weights, minlength=self.n_classes
+            )
             leaf_label = int(np.argmax(weighted_counts))
             return LeafNode(leaf_label, samples_count=num_samples)
 
@@ -148,7 +152,9 @@ class CustomDecisionTreeClassifier:
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
 
-    def _calc_information_gain(self, y, left_mask, right_mask, parent_impurity, sample_weights):
+    def _calc_information_gain(
+        self, y, left_mask, right_mask, parent_impurity, sample_weights
+    ):
         w_total = np.sum(sample_weights)
         w_left = np.sum(sample_weights[left_mask])
         w_right = np.sum(sample_weights[right_mask])
@@ -163,7 +169,9 @@ class CustomDecisionTreeClassifier:
             "entropy",
             "misclassification",
         ), "criterion must be 'gini', 'entropy', or 'misclassification'"
-        weighted_counts = np.bincount(y, weights=sample_weights, minlength=self.n_classes)
+        weighted_counts = np.bincount(
+            y, weights=sample_weights, minlength=self.n_classes
+        )
         ps = weighted_counts / weighted_counts.sum()
         if self.criterion == "gini":
             return 1 - np.sum(ps**2)
