@@ -29,9 +29,13 @@ class CustomRandomForestClassifier:
         self.n_jobs = n_jobs
         self.trees = []
         self.n_classes = None
-        self.rnd = np.random.RandomState(self.random_state)
+        # tracking
+        self.feature_importances_ = None
+        self.cost_history_per_tree_ = None
+        self.mean_cost_reduction_ = None
 
     def fit(self, X, y):
+        rnd = np.random.RandomState(self.random_state)
         X = np.array(X)
         y = np.array(y)
         self.n_classes = len(np.unique(y))
@@ -52,9 +56,16 @@ class CustomRandomForestClassifier:
             tree.fit(X_sample, y_sample)
             return tree
 
-        seeds = [self.rnd.randint(0, int(1e6)) for _ in range(self.n_estimators)]
+        seeds = [rnd.randint(0, int(1e6)) for _ in range(self.n_estimators)]
         self.trees = Parallel(n_jobs=self.n_jobs)(
             delayed(build_and_fit_tree)(seed) for seed in seeds
+        )
+        self.feature_importances_ = np.mean(
+            [tree.feature_importances_ for tree in self.trees], axis=0
+        )
+        self.cost_history_per_tree_ = [tree.cost_history for tree in self.trees]
+        self.mean_cost_reduction_ = float(
+            np.mean([sum(h) for h in self.cost_history_per_tree_])
         )
         return self
 
@@ -76,18 +87,3 @@ class CustomRandomForestClassifier:
         n_samples = X.shape[0]
         indices = rnd.choice(n_samples, n_samples, replace=True)
         return X[indices], y[indices]
-
-    def _max_features_sample(self, n_features):
-        assert self.max_features in ("sqrt", "log2") or isinstance(
-            self.max_features, int
-        ), "max_features must be 'sqrt', 'log2', or an integer"
-        if isinstance(self.max_features, int):
-            assert (
-                self.max_features <= n_features
-            ), "max_features must be less than or equal to the number of features in the dataset"
-            return self.max_features
-        elif self.max_features == "sqrt":
-            return int(np.sqrt(n_features))
-        elif self.max_features == "log2":
-            return int(np.log2(n_features))
-        return n_features
