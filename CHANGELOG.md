@@ -14,3 +14,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Testing and implemented version CI
+
+## [0.1.2] - 2026-08-11
+
+### Added
+- Simple README documentation changes
