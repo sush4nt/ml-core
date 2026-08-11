@@ -1,8 +1,9 @@
-# import numpy as np
+import numpy as np
 
-# from mlcore.decision_tree import CustomDecisionTreeClassifier
+from mlcore.decision_tree import CustomDecisionTreeClassifier
 
-# class CustomGradientBoostingClassifier:
+class CustomGradientBoostingClassifier:
+    pass
 #     def __init__(
 #         self, 
 #         n_estimators=50, 
