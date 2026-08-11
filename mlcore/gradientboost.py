@@ -2,17 +2,20 @@ import numpy as np
 
 from mlcore.decision_tree import CustomDecisionTreeClassifier
 
+
 class CustomGradientBoostingClassifier:
     pass
+
+
 #     def __init__(
-#         self, 
-#         n_estimators=50, 
-#         learning_rate=0.1, 
-#         max_depth=3, 
+#         self,
+#         n_estimators=50,
+#         learning_rate=0.1,
+#         max_depth=3,
 #         min_samples_split=2,
 #         min_samples_leaf=1,
-#         min_impurity_decrease=1e-7, 
-#         random_state=None, 
+#         min_impurity_decrease=1e-7,
+#         random_state=None,
 #         **tree_kwargs
 #     ):
 #         self.n_estimators = n_estimators
@@ -33,7 +36,4 @@ class CustomGradientBoostingClassifier:
 #         num_samples, num_features = X.shape
 #         self.classes_ = np.unique(y)
 #         self.estimators_ = []
-#         self.f0_ = 
-
-
-         
+#         self.f0_ =

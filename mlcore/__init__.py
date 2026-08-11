@@ -22,4 +22,4 @@ __all__ = [
     "CustomGaussianNB",
     "CustomLinearSVM",
 ]
-# it will now help expose clean public API without needing to know internal module names. :) 
+# it will now help expose clean public API without needing to know internal module names. :)
