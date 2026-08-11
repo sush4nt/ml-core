@@ -1,14 +1,15 @@
 __version__ = "0.1.0"
 
-from .linear_regression import CustomLinearRegression
-from .logistic_regression import CustomLogisticRegression
-from .knn import CustomKNN
-from .decision_tree import CustomDecisionTreeClassifier, CustomDecisionTreeRegressor
-from .random_forest import CustomRandomForestClassifier
 from .adaboost import CustomAdaBoostClassifier
-from .gradientboost import CustomGradientBoostingClassifier
+from .decision_tree import (CustomDecisionTreeClassifier,
+                            CustomDecisionTreeRegressor)
 from .gaussian_nb import CustomGaussianNB
+from .gradientboost import CustomGradientBoostingClassifier
+from .knn import CustomKNN
+from .linear_regression import CustomLinearRegression
 from .linear_svm import CustomLinearSVM
+from .logistic_regression import CustomLogisticRegression
+from .random_forest import CustomRandomForestClassifier
 
 __all__ = [
     "CustomLinearRegression",
