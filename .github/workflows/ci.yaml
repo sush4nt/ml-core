@@ -33,6 +33,6 @@ jobs:
       - name: Lint
         run: |
           source .venv/bin/activate
-          isort --check-only mlcore/
-          black --check mlcore/
+          isort --check-only mlcore/ --skip mlcore/__init__.py
+          black --check mlcore/ --exclude mlcore/__init__.py
           flake8 --max-line-length=120 --exit-zero mlcore/

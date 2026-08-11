@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlcore"
+version = "0.1.0"
+description = "Custom implementations of supervised machine learning algorithms"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "sushant patil", email = "sushant.kb.patil@gmail.com"},
+]
+dependencies = [
+    "numpy",
+    "scikit-learn",
+    "pandas",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/sush4nt/ml-core"
+
+[tool.setuptools]
+packages = ["mlcore"]
+
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
