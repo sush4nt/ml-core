@@ -23,3 +23,6 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/sush4nt/ml-core"
+
+[tool.setuptools]
+packages = ["mlcore"]
