@@ -1,8 +1,7 @@
 __version__ = "0.1.0"
 
 from .adaboost import CustomAdaBoostClassifier
-from .decision_tree import (CustomDecisionTreeClassifier,
-                            CustomDecisionTreeRegressor)
+from .decision_tree import CustomDecisionTreeClassifier, CustomDecisionTreeRegressor
 from .gaussian_nb import CustomGaussianNB
 from .gradientboost import CustomGradientBoostingClassifier
 from .knn import CustomKNN
