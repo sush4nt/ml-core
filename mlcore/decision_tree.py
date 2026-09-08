@@ -29,6 +29,7 @@ class CustomDecisionTreeClassifier:
         criterion="gini",
         n_classes=None,
         random_state=42,
+        max_thresholds=None,
     ):
         self.max_depth = max_depth
         self.max_features = max_features
@@ -37,6 +38,7 @@ class CustomDecisionTreeClassifier:
         self.min_impurity_decrease = min_impurity_decrease
         self.criterion = criterion
         self.n_classes = n_classes
+        self.max_thresholds = max_thresholds
         self.root = None
         self.rnd = np.random.RandomState(random_state)
         # history
@@ -109,8 +111,7 @@ class CustomDecisionTreeClassifier:
             unique_vals = np.unique(X[:, feat])
             if unique_vals.shape[0] < 2:
                 continue
-            # use feature values' midpoints
-            thresholds = (unique_vals[:-1] + unique_vals[1:]) / 2
+            thresholds = self._candidate_thresholds(unique_vals)
             for thresh in thresholds:
                 left_mask = X[:, feat] <= thresh
                 right_mask = ~left_mask
@@ -151,6 +152,14 @@ class CustomDecisionTreeClassifier:
         return DecisionNode(
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
+
+    def _candidate_thresholds(self, unique_vals):
+        """Quantile-capped split candidates, or all midpoints if uncapped/few values."""
+        n_unique = unique_vals.shape[0]
+        if self.max_thresholds is None or n_unique - 1 <= self.max_thresholds:
+            return (unique_vals[:-1] + unique_vals[1:]) / 2
+        quantiles = np.linspace(0, 1, self.max_thresholds + 2)[1:-1]
+        return np.unique(np.quantile(unique_vals, quantiles))
 
     def _calc_information_gain(
         self, y, left_mask, right_mask, parent_impurity, sample_weights
@@ -231,12 +240,13 @@ class CustomDecisionTreeRegressor:
     def __init__(
         self,
         max_depth=None,
-        max_features="sqrt",
+        max_features=None,
         min_samples_split=2,
         min_samples_leaf=1,
         min_impurity_decrease=1e-7,
         criterion="squared_error",
         random_state=42,
+        max_thresholds=None,
     ):
         self.max_depth = max_depth
         self.max_features = max_features
@@ -246,6 +256,7 @@ class CustomDecisionTreeRegressor:
         self.criterion = criterion
         self.root = None
         self.rnd = np.random.RandomState(random_state)
+        self.max_thresholds = max_thresholds
         # history
         self.cost_history = []
         self.feature_importances_ = None
@@ -314,8 +325,7 @@ class CustomDecisionTreeRegressor:
             unique_vals = np.unique(X[:, feat])
             if unique_vals.shape[0] < 2:
                 continue
-            # use feature values' midpoints
-            thresholds = (unique_vals[:-1] + unique_vals[1:]) / 2
+            thresholds = self._candidate_thresholds(unique_vals)
             for thresh in thresholds:
                 left_mask = X[:, feat] <= thresh
                 right_mask = ~left_mask
@@ -353,6 +363,14 @@ class CustomDecisionTreeRegressor:
         return DecisionNode(
             best_feat, best_thresh, best_gain, left_subtree, right_subtree
         )
+
+    def _candidate_thresholds(self, unique_vals):
+        """Quantile-capped split candidates, or all midpoints if uncapped/few values."""
+        n_unique = unique_vals.shape[0]
+        if self.max_thresholds is None or n_unique - 1 <= self.max_thresholds:
+            return (unique_vals[:-1] + unique_vals[1:]) / 2
+        quantiles = np.linspace(0, 1, self.max_thresholds + 2)[1:-1]
+        return np.unique(np.quantile(unique_vals, quantiles))
 
     def _calc_information_gain(
         self, y, left_mask, right_mask, parent_impurity, sample_weights
@@ -399,9 +417,11 @@ class CustomDecisionTreeRegressor:
         return self.rnd.choice(n_features, size=feature_sample_size, replace=False)
 
     def _max_features_sample(self, n_features):
-        assert self.max_features in ("sqrt", "log2") or isinstance(
+        assert self.max_features in ("sqrt", "log2", None) or isinstance(
             self.max_features, int
         ), "max_features must be 'sqrt', 'log2', or an integer"
+        if self.max_features == None:
+            return n_features
         if isinstance(self.max_features, int):
             assert (
                 self.max_features <= n_features
