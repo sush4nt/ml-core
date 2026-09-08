@@ -231,7 +231,7 @@ class CustomDecisionTreeRegressor:
     def __init__(
         self,
         max_depth=None,
-        max_features="sqrt",
+        max_features=None,
         min_samples_split=2,
         min_samples_leaf=1,
         min_impurity_decrease=1e-7,
@@ -399,9 +399,11 @@ class CustomDecisionTreeRegressor:
         return self.rnd.choice(n_features, size=feature_sample_size, replace=False)
 
     def _max_features_sample(self, n_features):
-        assert self.max_features in ("sqrt", "log2") or isinstance(
+        assert self.max_features in ("sqrt", "log2", None) or isinstance(
             self.max_features, int
         ), "max_features must be 'sqrt', 'log2', or an integer"
+        if self.max_features==None:
+            return n_features
         if isinstance(self.max_features, int):
             assert (
                 self.max_features <= n_features
