@@ -16,6 +16,7 @@ class CustomGradientBoostingClassifier:
         min_samples_leaf=1,
         min_impurity_decrease=1e-7,
         random_state=None,
+        max_thresholds=None,
         verbose=False
     ):
         assert loss in ("log_loss", "exponential"), "loss must be 'log_loss' or 'exponential'"
@@ -32,6 +33,7 @@ class CustomGradientBoostingClassifier:
         self.estimators_ = []
         self.feature_importances_ = None
         self.verbose = verbose
+        self.max_thresholds = max_thresholds
 
     def fit(self, X, y):
         X = np.array(X)
@@ -60,6 +62,7 @@ class CustomGradientBoostingClassifier:
                 min_samples_leaf=self.min_samples_leaf,
                 min_impurity_decrease=self.min_impurity_decrease,
                 random_state=self.rnd.randint(0, int(1e6)),
+                max_thresholds=self.max_thresholds,
             )
             tree.fit(X, pseudo_residuals)
             F += self.learning_rate * tree.predict(X)
