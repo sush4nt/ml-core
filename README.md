@@ -15,7 +15,7 @@ Built for learning, experimentation, and understanding what happens inside the b
 | Decision Tree | Classification / Regression | `mlcore.decision_tree` |
 | Random Forest | Classification | `mlcore.random_forest` |
 | AdaBoost | Classification | `mlcore.adaboost` |
-| Gradient Boosting | Classification | `mlcore.gradientboost` |
+| Gradient Boosting | Classification | `mlcore.gradient_boost` |
 | Gaussian Naive Bayes | Classification | `mlcore.gaussian_nb` |
 | Linear SVM | Classification | `mlcore.linear_svm` |
 
@@ -64,6 +64,17 @@ preds = reg.predict(X_test)
 clf = CustomKNN(k=5)
 clf.fit(X_train, y_train)
 preds = clf.predict(X_test)
+
+# Gradient Boosting
+gb = CustomGradientBoostingClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    loss="log_loss",
+    max_depth=3,
+    verbose=True,
+)
+gb.fit(X_train, y_train)
+preds = gb.predict(X_test)
 ```
 
 All classes follow a consistent `fit` / `predict` interface.
@@ -85,5 +96,17 @@ pytest tests/
 - Python >= 3.9
 - numpy
 - pandas
+
+---
+
+## Key points updated
+
+1. Module path corrected: mlcore.gradientboost → mlcore.gradient_boost (the actual file is mlcore/gradient_boost.py).
+2. Added `tqdm` to requirements in README and changelog.
+3. Added a gradient boosting quick-start snippet.
+4. Bumped version to `0.1.3` to match pyproject.toml#L7.
+5. Documented max_thresholds and `verbose` additions.
+
+One thing to verify: if `tqdm` is now a runtime dependency, it should also be added to pyproject.toml#L17 `dependencies` and requirements.txt. The README change above assumes you've done that; if not, add it to those files as well before cutting the release.
 
 ---
