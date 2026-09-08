@@ -1,7 +1,10 @@
-from tqdm import trange
 import numpy as np
+from tqdm import trange
 
-from mlcore.decision_tree import CustomDecisionTreeClassifier, CustomDecisionTreeRegressor
+from mlcore.decision_tree import (
+    CustomDecisionTreeClassifier,
+    CustomDecisionTreeRegressor,
+)
 
 
 class CustomGradientBoostingClassifier:
@@ -17,9 +20,12 @@ class CustomGradientBoostingClassifier:
         min_impurity_decrease=1e-7,
         random_state=None,
         max_thresholds=None,
-        verbose=False
+        verbose=False,
     ):
-        assert loss in ("log_loss", "exponential"), "loss must be 'log_loss' or 'exponential'"
+        assert loss in (
+            "log_loss",
+            "exponential",
+        ), "loss must be 'log_loss' or 'exponential'"
         self.loss = loss
         self.n_estimators = n_estimators
         self.learning_rate = learning_rate
@@ -47,7 +53,11 @@ class CustomGradientBoostingClassifier:
         self.feature_importances_ = np.zeros(num_features)
 
         # log_loss works in {0,1} space and exponential works in {-1,+1} space
-        y_loss = y_idx.astype(float) if self.loss == "log_loss" else np.where(y_idx == 0, -1.0, 1.0)
+        y_loss = (
+            y_idx.astype(float)
+            if self.loss == "log_loss"
+            else np.where(y_idx == 0, -1.0, 1.0)
+        )
 
         self.F0_ = self._initialize_predictions(y_loss)
         F = np.full(num_samples, self.F0_)
@@ -81,9 +91,9 @@ class CustomGradientBoostingClassifier:
         """Optimal constant F0 that minimises the chosen loss."""
         p0 = np.clip((y > 0).mean(), 1e-10, 1 - 1e-10)
         if self.loss == "log_loss":
-            return np.log(p0 / (1 - p0))          # log-odds
+            return np.log(p0 / (1 - p0))  # log-odds
         else:
-            return 0.5 * np.log(p0 / (1 - p0))    # half of log-odds for {-1,+1}
+            return 0.5 * np.log(p0 / (1 - p0))  # half of log-odds for {-1,+1}
 
     def _negative_gradient(self, y, F):
         """Pseudo-residuals: -dL/dF for the chosen loss."""

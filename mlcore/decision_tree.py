@@ -29,7 +29,7 @@ class CustomDecisionTreeClassifier:
         criterion="gini",
         n_classes=None,
         random_state=42,
-        max_thresholds=None
+        max_thresholds=None,
     ):
         self.max_depth = max_depth
         self.max_features = max_features
@@ -420,7 +420,7 @@ class CustomDecisionTreeRegressor:
         assert self.max_features in ("sqrt", "log2", None) or isinstance(
             self.max_features, int
         ), "max_features must be 'sqrt', 'log2', or an integer"
-        if self.max_features==None:
+        if self.max_features == None:
             return n_features
         if isinstance(self.max_features, int):
             assert (
