@@ -1,8 +1,7 @@
 import numpy as np
 from tqdm import trange
 
-from mlcore.decision_tree import (CustomDecisionTreeClassifier,
-                                  CustomDecisionTreeRegressor)
+from mlcore.decision_tree import CustomDecisionTreeRegressor
 
 
 class CustomGradientBoostingClassifier:
