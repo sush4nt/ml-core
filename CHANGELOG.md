@@ -19,3 +19,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Simple README documentation changes
+
+## [0.1.3] - 2026-09-08
+
+### Added
+- `CustomGradientBoostingClassifier` implementation with `log_loss` and `exponential` loss functions
+- `max_thresholds` option in `CustomDecisionTreeClassifier` and `CustomDecisionTreeRegressor` for quantile-capped split candidates, speeding up tree building
+- Optional `tqdm` progress bar in `CustomGradientBoostingClassifier` via `verbose=True`
+- `verbose` flag in `CustomGradientBoostingClassifier` to toggle progress display
+
+### Changed
+- `CustomGradientBoostingClassifier` module path corrected from `mlcore.gradientboost` to `mlcore.gradient_boost`
+- Decision tree regressor default `max_features` changed to `None` (all features) for better boosting performance
